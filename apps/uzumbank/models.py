@@ -10,7 +10,7 @@ class TransactionEnum(models.TextChoices):
     FAILED = 'FAILED', 'Failed'
 
 
-class Transaction(BaseModel):
+class UzumbankTransaction(BaseModel):
     service_id = models.BigIntegerField()
     trans_id = models.UUIDField(unique=True)
     timestamp = models.BigIntegerField()

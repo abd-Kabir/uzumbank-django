@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Transaction
+from .models import UzumbankTransaction
 
 
 # Check Request and Response
@@ -27,7 +27,7 @@ class CreateRequestSerializer(serializers.Serializer):
 
 class CreateResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction
+        model = UzumbankTransaction
         fields = ['service_id', 'trans_id', 'status', 'trans_time', 'data', 'amount']
 
 
@@ -44,7 +44,7 @@ class ConfirmRequestSerializer(serializers.Serializer):
 
 class ConfirmResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction
+        model = UzumbankTransaction
         fields = ['service_id', 'trans_id', 'status', 'confirm_time', 'data', 'amount']
 
 
@@ -57,7 +57,7 @@ class ReverseRequestSerializer(serializers.Serializer):
 
 class ReverseResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction
+        model = UzumbankTransaction
         fields = ['service_id', 'trans_id', 'status', 'reverse_time', 'data', 'amount']
 
 
@@ -70,5 +70,5 @@ class StatusRequestSerializer(serializers.Serializer):
 
 class StatusResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction
+        model = UzumbankTransaction
         fields = ['service_id', 'trans_id', 'status', 'trans_time', 'confirm_time', 'reverse_time', 'data', 'amount']

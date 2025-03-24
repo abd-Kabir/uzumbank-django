@@ -1,7 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Transaction
+
+from config.core.permissions import UzumbankPermission
+from .models import UzumbankTransaction
 from .serializer import (
     CheckRequestSerializer, CheckResponseSerializer,
     CreateRequestSerializer, CreateResponseSerializer,
@@ -13,6 +15,8 @@ from .serializer import (
 
 # Check View
 class CheckView(APIView):
+    # permission_classes = [UzumbankPermission, ]
+
     def post(self, request):
         serializer = CheckRequestSerializer(data=request.data)
         if serializer.is_valid():
@@ -29,11 +33,13 @@ class CheckView(APIView):
 
 # Create View
 class CreateView(APIView):
+    # permission_classes = [UzumbankPermission, ]
+
     def post(self, request):
         serializer = CreateRequestSerializer(data=request.data)
         if serializer.is_valid():
             # Create a transaction
-            transaction = Transaction.objects.create(
+            transaction = UzumbankTransaction.objects.create(
                 service_id=serializer.validated_data['serviceId'],
                 trans_id=serializer.validated_data['transId'],
                 timestamp=serializer.validated_data['timestamp'],
@@ -48,50 +54,56 @@ class CreateView(APIView):
 
 # Confirm View
 class ConfirmView(APIView):
+    permission_classes = [UzumbankPermission, ]
+
     def post(self, request):
         serializer = ConfirmRequestSerializer(data=request.data)
         if serializer.is_valid():
             # Confirm the transaction
             try:
-                transaction = Transaction.objects.get(trans_id=serializer.validated_data['transId'])
+                transaction = UzumbankTransaction.objects.get(trans_id=serializer.validated_data['transId'])
                 transaction.status = 'CONFIRMED'
                 transaction.confirm_time = serializer.validated_data['timestamp']
                 transaction.save()
                 response_serializer = ConfirmResponseSerializer(transaction)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
-            except Transaction.DoesNotExist:
+            except UzumbankTransaction.DoesNotExist:
                 return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Reverse View
 class ReverseView(APIView):
+    # permission_classes = [UzumbankPermission, ]
+
     def post(self, request):
         serializer = ReverseRequestSerializer(data=request.data)
         if serializer.is_valid():
             # Reverse the transaction
             try:
-                transaction = Transaction.objects.get(trans_id=serializer.validated_data['transId'])
+                transaction = UzumbankTransaction.objects.get(trans_id=serializer.validated_data['transId'])
                 transaction.status = 'REVERSED'
                 transaction.reverse_time = serializer.validated_data['timestamp']
                 transaction.save()
                 response_serializer = ReverseResponseSerializer(transaction)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
-            except Transaction.DoesNotExist:
+            except UzumbankTransaction.DoesNotExist:
                 return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Status View
 class StatusView(APIView):
+    # permission_classes = [UzumbankPermission, ]
+
     def post(self, request):
         serializer = StatusRequestSerializer(data=request.data)
         if serializer.is_valid():
             # Get the transaction status
             try:
-                transaction = Transaction.objects.get(trans_id=serializer.validated_data['transId'])
+                transaction = UzumbankTransaction.objects.get(trans_id=serializer.validated_data['transId'])
                 response_serializer = StatusResponseSerializer(transaction)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
-            except Transaction.DoesNotExist:
+            except UzumbankTransaction.DoesNotExist:
                 return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

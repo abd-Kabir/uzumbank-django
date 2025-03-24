@@ -9,13 +9,13 @@ from django.conf.urls.static import static
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="PROJECT_NAME Swagger",
+        title="Uzumbank MerchantAPI Swagger",
         default_version='v1',
-        description="Swagger foy PROJECT_NAME project, token authorization: user __/auth/token/__ API "
+        description="Swagger foy Uzumbank MerchantAPI project, token authorization: user __/auth/token/__ API "
                     "then click authorize button and type __Bearer {token}__.",
         terms_of_service="https://domen.com/",
         contact=openapi.Contact(email="help@domen.com"),
-        license=openapi.License(name="PROJECT_NAME License"),
+        license=openapi.License(name="Uzumbank MerchantAPI License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny, ],
