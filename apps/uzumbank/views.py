@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,7 +17,7 @@ from .serializer import (
 
 # Check View
 class CheckView(APIView):
-    # permission_classes = [UzumbankPermission, ]
+    permission_classes = [UzumbankPermission, ]
 
     def post(self, request):
         serializer = CheckRequestSerializer(data=request.data)
@@ -33,7 +35,7 @@ class CheckView(APIView):
 
 # Create View
 class CreateView(APIView):
-    # permission_classes = [UzumbankPermission, ]
+    permission_classes = [UzumbankPermission, ]
 
     def post(self, request):
         serializer = CreateRequestSerializer(data=request.data)
@@ -43,6 +45,7 @@ class CreateView(APIView):
                 service_id=serializer.validated_data['serviceId'],
                 trans_id=serializer.validated_data['transId'],
                 timestamp=serializer.validated_data['timestamp'],
+                trans_time=int(datetime.now().timestamp() * 1000),
                 amount=serializer.validated_data['amount'],
                 status='CREATED',
                 data=serializer.validated_data['params'],
@@ -63,18 +66,19 @@ class ConfirmView(APIView):
             try:
                 transaction = UzumbankTransaction.objects.get(trans_id=serializer.validated_data['transId'])
                 transaction.status = 'CONFIRMED'
-                transaction.confirm_time = serializer.validated_data['timestamp']
+                # transaction.confirm_time = serializer.validated_data['timestamp']
+                transaction.confirm_time = int(datetime.now().timestamp() * 1000)
                 transaction.save()
                 response_serializer = ConfirmResponseSerializer(transaction)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
             except UzumbankTransaction.DoesNotExist:
-                return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'errorCode': '10014'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Reverse View
 class ReverseView(APIView):
-    # permission_classes = [UzumbankPermission, ]
+    permission_classes = [UzumbankPermission, ]
 
     def post(self, request):
         serializer = ReverseRequestSerializer(data=request.data)
@@ -83,18 +87,19 @@ class ReverseView(APIView):
             try:
                 transaction = UzumbankTransaction.objects.get(trans_id=serializer.validated_data['transId'])
                 transaction.status = 'REVERSED'
-                transaction.reverse_time = serializer.validated_data['timestamp']
+                # transaction.reverse_time = serializer.validated_data['timestamp']
+                transaction.reverse_time = int(datetime.now().timestamp() * 1000)
                 transaction.save()
                 response_serializer = ReverseResponseSerializer(transaction)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
             except UzumbankTransaction.DoesNotExist:
-                return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'errorCode': '10014'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Status View
 class StatusView(APIView):
-    # permission_classes = [UzumbankPermission, ]
+    permission_classes = [UzumbankPermission, ]
 
     def post(self, request):
         serializer = StatusRequestSerializer(data=request.data)
@@ -105,5 +110,5 @@ class StatusView(APIView):
                 response_serializer = StatusResponseSerializer(transaction)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
             except UzumbankTransaction.DoesNotExist:
-                return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'errorCode': '10014'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
